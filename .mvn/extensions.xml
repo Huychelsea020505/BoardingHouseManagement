@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extensions>
+  <!-- Disable problematic TestResourcesLifecycleExtension that requires Java 21 -->
+</extensions>

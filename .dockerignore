@@ -1,0 +1,11 @@
+.git
+.gradle
+.snapshots
+.vscode
+build
+bin
+frontend/node_modules
+frontend/dist
+**/.gradle
+**/build
+**/target
