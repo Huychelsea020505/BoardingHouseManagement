@@ -12,9 +12,10 @@ export default function ReportsPage() {
   async function loadReport() {
     setError("");
     try {
-      setReport(await api("/api/reports/summary"));
+      const data = await api("/api/reports/summary");
+      setReport(data);
     } catch (err) {
-      setError("Khong the tai bao cao tu C# microservice.");
+      setError("Không thể tải báo cáo.");
     }
   }
 

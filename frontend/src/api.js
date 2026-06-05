@@ -6,12 +6,13 @@ function baseUrlFor(path) {
   if (
     path.startsWith("/dashboard") ||
     path.startsWith("/invoices") ||
-    path.startsWith("/payments")
+    path.startsWith("/payments") ||
+    path.startsWith("/auth")
   ) {
     return BILLING_API_URL;
   }
 
-  if (path.startsWith("/auth") || path.startsWith("/api/sso") || path.startsWith("/api/search") || path.startsWith("/api/reports")) {
+  if (path.startsWith("/api/sso") || path.startsWith("/api/search") || path.startsWith("/api/reports")) {
     return MICRO_API_URL;
   }
 

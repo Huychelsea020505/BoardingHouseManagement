@@ -51,14 +51,14 @@ CREATE TABLE IF NOT EXISTS payment (
     CONSTRAINT fk_payment_invoice FOREIGN KEY (invoice_id) REFERENCES invoice(id)
 );
 
--- Passwords are now bcrypt hashes for '123456'
+-- Plain text passwords (AuthService uses plain text comparison)
 INSERT INTO app_user (id, username, password, full_name)
-VALUES (1, 'admin', '$2b$10$u1Z8QwQvQn8Q8QwQvQn8QeQwQvQn8QwQvQn8QeQwQvQn8QwQvQn8Qe', 'Motel Manager')
-ON DUPLICATE KEY UPDATE username = VALUES(username);
+VALUES (1, 'admin', '123456', 'Motel Manager')
+ON DUPLICATE KEY UPDATE password = VALUES(password), full_name = VALUES(full_name);
 
 INSERT INTO app_user (id, username, password, full_name)
-VALUES (2, 'huy', '$2b$10$u1Z8QwQvQn8Q8QwQvQn8QeQwQvQn8QwQvQn8QeQwQvQn8QwQvQn8Qe', 'Huy Nguyen')
-ON DUPLICATE KEY UPDATE username = VALUES(username);
+VALUES (2, 'huy', '123456', 'Huy Nguyen')
+ON DUPLICATE KEY UPDATE password = VALUES(password), full_name = VALUES(full_name);
 
 INSERT INTO room (id, name, price, area, occupied, water_price, status)
 VALUES
