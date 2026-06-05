@@ -7,6 +7,7 @@ import com.motel.dto.CreateInvoiceRequest;
 import com.motel.dto.PayInvoiceRequest;
 import com.motel.grpc.RoomGrpcClient;
 import com.motel.grpc.RoomResponse;
+import com.motel.pattern.factory.InvoiceFactory;
 import com.motel.repository.InvoiceRepository;
 import com.motel.repository.PaymentRepository;
 import io.micronaut.http.HttpStatus;
@@ -23,14 +24,17 @@ public class InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final PaymentRepository paymentRepository;
     private final RoomGrpcClient roomGrpcClient;
+    private final InvoiceFactory invoiceFactory;
 
     public InvoiceService(
             InvoiceRepository invoiceRepository,
             PaymentRepository paymentRepository,
-            RoomGrpcClient roomGrpcClient) {
+            RoomGrpcClient roomGrpcClient,
+            InvoiceFactory invoiceFactory) {
         this.invoiceRepository = invoiceRepository;
         this.paymentRepository = paymentRepository;
         this.roomGrpcClient = roomGrpcClient;
+        this.invoiceFactory = invoiceFactory;
     }
 
     public List<Invoice> findAll() {
@@ -62,30 +66,8 @@ public class InvoiceService {
             throw new HttpStatusException(HttpStatus.NOT_FOUND, "Room not found");
         }
 
-        Invoice invoice = new Invoice();
-        invoice.setRoomId(room.getId());
-        invoice.setTenantId(request.getTenantId());
-        invoice.setRoomName(room.getRoomNumber());
-        invoice.setTenantName(room.getTenantName());
-        invoice.setMonth(request.getMonth());
-
-        BigDecimal roomPrice = BigDecimal.valueOf(room.getPrice());
-
-        invoice.setRoomPrice(roomPrice);
-        invoice.setWaterPrice(request.getWaterPrice());
-        invoice.setElectricityPrice(request.getElectricityPrice());
-        invoice.setServicePrice(request.getServicePrice());
-
-        invoice.setTotalAmount(roomPrice
-                .add(request.getWaterPrice())
-                .add(request.getElectricityPrice())
-                .add(request.getServicePrice()));
-
-        invoice.setStatus(InvoiceStatus.UNPAID);
-        invoice.setCreatedAt(LocalDateTime.now());
-
+        Invoice invoice = invoiceFactory.createMonthlyInvoice(request, room);
         return invoiceRepository.save(invoice);
-
     }
 
     @Transactional

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { api, toNumberPayload } from "../api";
+import { api, queryString, toNumberPayload } from "../api";
 
 const emptyForm = { citizenId: "", fullName: "", birthDate: "", moveInDate: "", roomId: "" };
 
@@ -8,6 +8,7 @@ export default function TenantsPage() {
   const [rooms, setRooms] = useState([]);
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
+  const [keyword, setKeyword] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
@@ -18,7 +19,7 @@ export default function TenantsPage() {
   async function loadData() {
     setError("");
     try {
-      const [tenantData, roomData] = await Promise.all([api("/tenants"), api("/rooms")]);
+      const [tenantData, roomData] = await Promise.all([api(`/api/search/tenants${queryString({ keyword })}`), api("/rooms")]);
       setTenants(tenantData);
       setRooms(roomData);
     } catch (err) {
@@ -97,6 +98,10 @@ export default function TenantsPage() {
 
       <section className="panel">
         <div className="panel-heading"><h2>Danh sách người thuê</h2><button className="ghost-button" onClick={loadData}>Tải lại</button></div>
+        <div className="toolbar">
+          <input placeholder="Tìm người thuê, CCCD, phòng" value={keyword} onChange={(event) => setKeyword(event.target.value)} />
+          <button className="primary-button" onClick={loadData}>Tìm kiếm</button>
+        </div>
         <div className="table-wrap">
           <table>
             <thead><tr><th>CCCD</th><th>Họ tên</th><th>Ngày sinh</th><th>Ngày vào ở</th><th>Phòng</th><th>Hành động</th></tr></thead>

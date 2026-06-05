@@ -13,3 +13,7 @@ out/
 .settings
 .classpath
 .factorypath
+frontend/dist/
+frontend/node_modules/
+csharp-services/**/bin/
+csharp-services/**/obj/

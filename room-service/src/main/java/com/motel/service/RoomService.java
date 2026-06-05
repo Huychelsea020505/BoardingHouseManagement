@@ -3,6 +3,8 @@ package com.motel.service;
 import com.motel.domain.Room;
 import com.motel.domain.RoomStatus;
 import com.motel.dto.CreateRoomRequest;
+import com.motel.pattern.iterator.RoomCollection;
+import com.motel.pattern.state.RoomStateFactory;
 import com.motel.repository.RoomRepository;
 import com.motel.repository.TenantRepository;
 import io.micronaut.http.HttpStatus;
@@ -16,15 +18,19 @@ import java.util.List;
 public class RoomService {
     private final RoomRepository roomRepository;
     private final TenantRepository tenantRepository;
+    private final RoomStateFactory roomStateFactory;
 
-    public RoomService(RoomRepository roomRepository, TenantRepository tenantRepository) {
+    public RoomService(RoomRepository roomRepository, TenantRepository tenantRepository, RoomStateFactory roomStateFactory) {
         this.roomRepository = roomRepository;
         this.tenantRepository = tenantRepository;
+        this.roomStateFactory = roomStateFactory;
     }
 
     public List<Room> findAll() {
         List<Room> rooms = new ArrayList<>();
-        roomRepository.findAll().forEach(rooms::add);
+        for (Room room : new RoomCollection(roomRepository.findAll())) {
+            rooms.add(room);
+        }
         return rooms;
     }
 
@@ -76,7 +82,6 @@ public class RoomService {
         room.setPrice(request.getPrice());
         room.setArea(request.getArea());
         room.setWaterPrice(request.getWaterPrice());
-        room.setStatus(status);
-        room.setOccupied(status == RoomStatus.OCCUPIED);
+        roomStateFactory.forStatus(status).apply(room);
     }
 }

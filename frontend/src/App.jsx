@@ -5,13 +5,15 @@ import RoomsPage from "./pages/RoomsPage.jsx";
 import TenantsPage from "./pages/TenantsPage.jsx";
 import InvoicesPage from "./pages/InvoicesPage.jsx";
 import PaymentsPage from "./pages/PaymentsPage.jsx";
+import ReportsPage from "./pages/ReportsPage.jsx";
 
 const menuItems = [
-  { key: "dashboard", label: "Dashboard", title: "Tổng quan" },
-  { key: "rooms", label: "Phòng trọ", title: "Quản lý phòng trọ" },
-  { key: "tenants", label: "Người thuê", title: "Quản lý người thuê" },
-  { key: "invoices", label: "Hóa đơn", title: "Quản lý hóa đơn" },
-  { key: "payments", label: "Thanh toán", title: "Lịch sử thanh toán" },
+  { key: "dashboard", label: "Dashboard", title: "Tong quan" },
+  { key: "rooms", label: "Rooms", title: "Quan ly phong tro" },
+  { key: "tenants", label: "Tenants", title: "Quan ly nguoi thue" },
+  { key: "invoices", label: "Invoices", title: "Quan ly hoa don" },
+  { key: "payments", label: "Payments", title: "Lich su thanh toan" },
+  { key: "reports", label: "Reports", title: "Bao cao thong ke" },
 ];
 
 export default function App() {
@@ -69,7 +71,7 @@ export default function App() {
           <div className="account">
             <span>{user.fullName || user.username}</span>
             <button className="ghost-button" onClick={handleLogout}>
-              Đăng xuất
+              Logout
             </button>
           </div>
         </header>
@@ -79,6 +81,7 @@ export default function App() {
         {activePage === "tenants" && <TenantsPage />}
         {activePage === "invoices" && <InvoicesPage />}
         {activePage === "payments" && <PaymentsPage />}
+        {activePage === "reports" && <ReportsPage />}
       </main>
     </div>
   );

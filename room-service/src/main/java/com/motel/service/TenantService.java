@@ -4,6 +4,7 @@ import com.motel.domain.Room;
 import com.motel.domain.RoomStatus;
 import com.motel.domain.Tenant;
 import com.motel.dto.CreateTenantRequest;
+import com.motel.pattern.state.RoomStateFactory;
 import com.motel.repository.RoomRepository;
 import com.motel.repository.TenantRepository;
 import io.micronaut.http.HttpStatus;
@@ -18,10 +19,12 @@ import java.util.List;
 public class TenantService {
     private final TenantRepository tenantRepository;
     private final RoomRepository roomRepository;
+    private final RoomStateFactory roomStateFactory;
 
-    public TenantService(TenantRepository tenantRepository, RoomRepository roomRepository) {
+    public TenantService(TenantRepository tenantRepository, RoomRepository roomRepository, RoomStateFactory roomStateFactory) {
         this.tenantRepository = tenantRepository;
         this.roomRepository = roomRepository;
+        this.roomStateFactory = roomStateFactory;
     }
 
     public List<Tenant> findAll() {
@@ -110,7 +113,7 @@ public class TenantService {
     private Room findRoomForTenant(Long roomId) {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new HttpStatusException(HttpStatus.NOT_FOUND, "Room not found"));
-        if (room.getStatus() == RoomStatus.MAINTENANCE) {
+        if (!roomStateFactory.forStatus(room.getStatus()).canAssignTenant()) {
             throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Room is under maintenance");
         }
         return room;
@@ -125,12 +128,10 @@ public class TenantService {
     }
 
     private void markRoomOccupied(Room room) {
-        room.setOccupied(true);
-        room.setStatus(RoomStatus.OCCUPIED);
+        roomStateFactory.forStatus(RoomStatus.OCCUPIED).apply(room);
     }
 
     private void markRoomAvailable(Room room) {
-        room.setOccupied(false);
-        room.setStatus(RoomStatus.AVAILABLE);
+        roomStateFactory.forStatus(RoomStatus.AVAILABLE).apply(room);
     }
 }

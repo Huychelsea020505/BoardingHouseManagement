@@ -10,7 +10,7 @@ export default function LoginPage({ onLogin }) {
     setError("");
 
     try {
-      const data = await api("/auth/login", {
+      const data = await api("/api/sso/login", {
         method: "POST",
         body: JSON.stringify(form),
       });

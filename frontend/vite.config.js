@@ -16,6 +16,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/billing/, ""),
       },
+      "/api/micro": {
+        target: "http://localhost:5090",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/micro/, ""),
+      },
       "/rooms": {
         target: "http://localhost:8080",
         changeOrigin: true,

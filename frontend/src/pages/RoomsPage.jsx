@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { api, money, toNumberPayload } from "../api";
+import { api, money, queryString, toNumberPayload } from "../api";
 
 const emptyForm = { name: "", price: "", area: "", waterPrice: "", status: "AVAILABLE" };
 
@@ -7,6 +7,8 @@ export default function RoomsPage() {
   const [rooms, setRooms] = useState([]);
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
+  const [keyword, setKeyword] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
@@ -17,7 +19,7 @@ export default function RoomsPage() {
   async function loadRooms() {
     setError("");
     try {
-      setRooms(await api("/rooms"));
+      setRooms(await api(`/api/search/rooms${queryString({ keyword, status: statusFilter })}`));
     } catch (err) {
       setError("Không thể tải danh sách phòng.");
     }
@@ -95,6 +97,16 @@ export default function RoomsPage() {
 
       <section className="panel">
         <div className="panel-heading"><h2>Danh sách phòng</h2><button className="ghost-button" onClick={loadRooms}>Tải lại</button></div>
+        <div className="toolbar">
+          <input placeholder="Tìm phòng" value={keyword} onChange={(event) => setKeyword(event.target.value)} />
+          <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
+            <option value="ALL">Tất cả trạng thái</option>
+            <option value="AVAILABLE">AVAILABLE</option>
+            <option value="OCCUPIED">OCCUPIED</option>
+            <option value="MAINTENANCE">MAINTENANCE</option>
+          </select>
+          <button className="primary-button" onClick={loadRooms}>Tìm kiếm</button>
+        </div>
         <div className="table-wrap">
           <table>
             <thead><tr><th>Tên phòng</th><th>Diện tích</th><th>Giá phòng</th><th>Giá nước</th><th>Trạng thái</th><th>Hành động</th></tr></thead>

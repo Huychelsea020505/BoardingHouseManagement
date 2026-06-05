@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { api, money, toNumberPayload } from "../api";
+import { api, money, queryString, toNumberPayload } from "../api";
 
 const emptyForm = {
   roomId: "",
@@ -18,6 +18,7 @@ export default function InvoicesPage() {
   const [form, setForm] = useState(emptyForm);
   const [payForm, setPayForm] = useState({ invoice: null, amount: "", note: "" });
   const [filter, setFilter] = useState("ALL");
+  const [keyword, setKeyword] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
@@ -29,7 +30,7 @@ export default function InvoicesPage() {
     setError("");
     try {
       const [invoiceData, roomData, tenantData] = await Promise.all([
-        api("/invoices"),
+        api(`/api/search/invoices${queryString({ keyword, status: filter })}`),
         api("/rooms"),
         api("/tenants"),
       ]);
@@ -141,6 +142,10 @@ export default function InvoicesPage() {
             <option value="UNPAID">Chưa thanh toán</option>
             <option value="PAID">Đã thanh toán</option>
           </select>
+        </div>
+        <div className="toolbar">
+          <input placeholder="Tìm hóa đơn theo tháng, phòng, người thuê" value={keyword} onChange={(event) => setKeyword(event.target.value)} />
+          <button className="primary-button" onClick={loadData}>Tìm kiếm</button>
         </div>
         <div className="table-wrap">
           <table>
