@@ -55,6 +55,23 @@ Demo accounts:
 
 The C# service uses Java APIs when the Java services are running. If they are not running, it falls back to demo data so the microservice can still be tested.
 
+## 3.1. Run backend services with Docker
+
+Docker Compose starts the two Java services, their MySQL databases, and the C# final microservice.
+
+```powershell
+cd BoardingHouseManagement
+docker compose up --build
+```
+
+Expected ports:
+
+- Room service: `http://localhost:8080`
+- Billing service: `http://localhost:8082`
+- C# final microservice: `http://localhost:5090`
+
+If login shows the wrong username/password message even with `admin / 123456`, check that `final-microservices` is running because the frontend login uses the C# SSO API.
+
 ## 4. Run frontend
 
 ```powershell

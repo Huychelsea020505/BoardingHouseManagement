@@ -108,3 +108,20 @@ services:
       DB_PASSWORD: root
       ROOM_GRPC_HOST: room-service
       ROOM_GRPC_PORT: 9090
+
+  final-microservices:
+    build:
+      context: .
+      dockerfile: csharp-services/FinalMicroservices/Dockerfile
+    container_name: final-microservices
+    restart: unless-stopped
+    ports:
+      - "5090:5090"
+    depends_on:
+      room-service:
+        condition: service_started
+      billing-service:
+        condition: service_started
+    environment:
+      JavaServices__RoomBaseUrl: http://room-service:8080
+      JavaServices__BillingBaseUrl: http://billing-service:8082

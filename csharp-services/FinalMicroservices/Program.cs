@@ -46,4 +46,4 @@ app.MapGet("/api/search/invoices", async (string? keyword, string? status, Searc
 app.MapGet("/api/reports/summary", async (ReportFacade facade) =>
     Results.Ok(await facade.GetSummaryAsync()));
 
-app.Run("http://localhost:5090");
+app.Run("http://0.0.0.0:5090");
