@@ -32,13 +32,14 @@ public sealed class SearchFacade
             .ToList();
     }
 
-    public async Task<IReadOnlyList<InvoiceDto>> SearchInvoicesAsync(string? keyword, string? status)
+    public async Task<IReadOnlyList<InvoiceDto>> SearchInvoicesAsync(string? keyword, string? status, long? tenantId)
     {
         var invoices = await _javaApiClient.GetInvoicesAsync() ?? _demoDataStore.Invoices;
         return invoices
             .Where(invoice =>
                 (Matches(invoice.RoomName, keyword) || Matches(invoice.TenantName, keyword) || Matches(invoice.Month, keyword)) &&
-                MatchesExact(invoice.Status, status))
+                MatchesExact(invoice.Status, status) &&
+                (!tenantId.HasValue || invoice.TenantId == tenantId.Value))
             .ToList();
     }
 

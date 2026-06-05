@@ -253,6 +253,35 @@ button {
   border-top: 1px solid #e5ebf1;
 }
 
+.detail-box {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 14px;
+  border: 1px solid #dce3ea;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.detail-box.wide {
+  margin-top: 16px;
+}
+
+.detail-box h3,
+.detail-box p {
+  margin: 0;
+}
+
+.detail-box h3 {
+  color: #243241;
+  font-size: 16px;
+}
+
+.detail-box p {
+  color: #52606f;
+  font-size: 14px;
+}
+
 label {
   display: grid;
   gap: 7px;

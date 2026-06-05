@@ -8,6 +8,7 @@ export default function TenantsPage() {
   const [rooms, setRooms] = useState([]);
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
+  const [selectedTenant, setSelectedTenant] = useState(null);
   const [keyword, setKeyword] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -28,6 +29,7 @@ export default function TenantsPage() {
   }
 
   function editTenant(tenant) {
+    setSelectedTenant(tenant);
     setEditingId(tenant.id);
     setForm({
       citizenId: tenant.citizenId,
@@ -94,6 +96,16 @@ export default function TenantsPage() {
             <button type="button" className="ghost-button" onClick={() => { setForm(emptyForm); setEditingId(null); }}>Hủy</button>
           </div>
         </form>
+        {selectedTenant && (
+          <div className="detail-box">
+            <h3>Object Information</h3>
+            <p><strong>CCCD:</strong> {selectedTenant.citizenId}</p>
+            <p><strong>Full name:</strong> {selectedTenant.fullName}</p>
+            <p><strong>Birth date:</strong> {selectedTenant.birthDate}</p>
+            <p><strong>Move in:</strong> {selectedTenant.moveInDate}</p>
+            <p><strong>Room:</strong> {selectedTenant.room?.name || "N/A"}</p>
+          </div>
+        )}
       </section>
 
       <section className="panel">
@@ -114,6 +126,7 @@ export default function TenantsPage() {
                   <td>{tenant.moveInDate}</td>
                   <td>{tenant.room?.name}</td>
                   <td className="actions">
+                    <button className="small-button" onClick={() => setSelectedTenant(tenant)}>Chi tiết</button>
                     <button className="small-button" onClick={() => editTenant(tenant)}>Sửa</button>
                     <button className="small-button danger" onClick={() => deleteTenant(tenant.id)}>Xóa</button>
                   </td>

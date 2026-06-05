@@ -4,6 +4,15 @@ namespace FinalMicroservices.Services;
 
 public sealed class DemoDataStore
 {
+    private long _nextUserId = 4;
+
+    public List<AppUserDto> Users { get; } =
+    [
+        new() { Id = 1, Username = "admin", Password = "123456", FullName = "System Administrator", Role = "ADMIN", Enabled = true },
+        new() { Id = 2, Username = "staff", Password = "123456", FullName = "Motel Staff", Role = "ADMIN", Enabled = true },
+        new() { Id = 3, Username = "tenant", Password = "123456", FullName = "Nguyen Van An", Role = "TENANT", TenantId = 1, Enabled = true }
+    ];
+
     public IReadOnlyList<RoomDto> Rooms { get; } =
     [
         new() { Id = 1, Name = "A101", Price = 2500000, Area = 20, WaterPrice = 15000, Status = "OCCUPIED" },
@@ -26,5 +35,12 @@ public sealed class DemoDataStore
             new() { Id = 1, CitizenId = "079201000001", FullName = "Nguyen Van An", BirthDate = "2001-04-12", MoveInDate = "2026-01-10", Room = Rooms[0] },
             new() { Id = 2, CitizenId = "079202000002", FullName = "Tran Thi Binh", BirthDate = "2002-08-20", MoveInDate = "2026-02-15", Room = Rooms[2] }
         ];
+    }
+
+    public AppUserDto AddUser(AppUserDto user)
+    {
+        user.Id = _nextUserId++;
+        Users.Add(user);
+        return user;
     }
 }

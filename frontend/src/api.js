@@ -12,7 +12,7 @@ function baseUrlFor(path) {
     return BILLING_API_URL;
   }
 
-  if (path.startsWith("/api/sso") || path.startsWith("/api/search") || path.startsWith("/api/reports")) {
+  if (path.startsWith("/api/sso") || path.startsWith("/api/users") || path.startsWith("/api/search") || path.startsWith("/api/reports")) {
     return MICRO_API_URL;
   }
 

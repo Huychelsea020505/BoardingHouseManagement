@@ -7,6 +7,7 @@ export default function RoomsPage() {
   const [rooms, setRooms] = useState([]);
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
+  const [selectedRoom, setSelectedRoom] = useState(null);
   const [keyword, setKeyword] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [message, setMessage] = useState("");
@@ -26,6 +27,7 @@ export default function RoomsPage() {
   }
 
   function editRoom(room) {
+    setSelectedRoom(room);
     setEditingId(room.id);
     setForm({
       name: room.name,
@@ -93,6 +95,16 @@ export default function RoomsPage() {
             <button type="button" className="ghost-button" onClick={() => { setForm(emptyForm); setEditingId(null); }}>Hủy</button>
           </div>
         </form>
+        {selectedRoom && (
+          <div className="detail-box">
+            <h3>Object Information</h3>
+            <p><strong>Room:</strong> {selectedRoom.name}</p>
+            <p><strong>Area:</strong> {selectedRoom.area} m2</p>
+            <p><strong>Price:</strong> {money(selectedRoom.price)}</p>
+            <p><strong>Water:</strong> {money(selectedRoom.waterPrice)}</p>
+            <p><strong>Status:</strong> {selectedRoom.status}</p>
+          </div>
+        )}
       </section>
 
       <section className="panel">
@@ -119,6 +131,7 @@ export default function RoomsPage() {
                   <td>{money(room.waterPrice)}</td>
                   <td><span className={`badge ${room.status?.toLowerCase()}`}>{room.status}</span></td>
                   <td className="actions">
+                    <button className="small-button" onClick={() => setSelectedRoom(room)}>Chi tiết</button>
                     <button className="small-button" onClick={() => editRoom(room)}>Sửa</button>
                     <button className="small-button danger" onClick={() => deleteRoom(room.id)}>Xóa</button>
                   </td>

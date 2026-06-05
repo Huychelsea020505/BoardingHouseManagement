@@ -6,24 +6,28 @@ import TenantsPage from "./pages/TenantsPage.jsx";
 import InvoicesPage from "./pages/InvoicesPage.jsx";
 import PaymentsPage from "./pages/PaymentsPage.jsx";
 import ReportsPage from "./pages/ReportsPage.jsx";
+import UsersPage from "./pages/UsersPage.jsx";
 
 const menuItems = [
-  { key: "dashboard", label: "Dashboard", title: "Tong quan" },
-  { key: "rooms", label: "Rooms", title: "Quan ly phong tro" },
-  { key: "tenants", label: "Tenants", title: "Quan ly nguoi thue" },
-  { key: "invoices", label: "Invoices", title: "Quan ly hoa don" },
-  { key: "payments", label: "Payments", title: "Lich su thanh toan" },
-  { key: "reports", label: "Reports", title: "Bao cao thong ke" },
+  { key: "dashboard", label: "Dashboard", title: "Tong quan", roles: ["ADMIN"] },
+  { key: "rooms", label: "Rooms", title: "Quan ly phong tro", roles: ["ADMIN"] },
+  { key: "tenants", label: "Tenants", title: "Quan ly nguoi thue", roles: ["ADMIN"] },
+  { key: "users", label: "Users", title: "Quan ly tai khoan", roles: ["ADMIN"] },
+  { key: "invoices", label: "Invoices", title: "Hoa don", roles: ["ADMIN", "TENANT"] },
+  { key: "payments", label: "Payments", title: "Lich su thanh toan", roles: ["ADMIN"] },
+  { key: "reports", label: "Reports", title: "Bao cao thong ke", roles: ["ADMIN"] },
 ];
 
 export default function App() {
   const storedUser = localStorage.getItem("motel_user");
-  const [user, setUser] = useState(storedUser ? JSON.parse(storedUser) : null);
-  const [activePage, setActivePage] = useState("dashboard");
+  const storedUserData = storedUser ? JSON.parse(storedUser) : null;
+  const [user, setUser] = useState(storedUserData);
+  const [activePage, setActivePage] = useState(storedUserData?.role === "TENANT" ? "invoices" : "dashboard");
 
   function handleLogin(data) {
     localStorage.setItem("motel_user", JSON.stringify(data));
     setUser(data);
+    setActivePage(data.role === "TENANT" ? "invoices" : "dashboard");
   }
 
   function handleLogout() {
@@ -36,7 +40,9 @@ export default function App() {
     return <LoginPage onLogin={handleLogin} />;
   }
 
-  const currentTitle = menuItems.find((item) => item.key === activePage)?.title;
+  const visibleMenuItems = menuItems.filter((item) => item.roles.includes(user.role || "ADMIN"));
+  const effectiveActivePage = visibleMenuItems.some((item) => item.key === activePage) ? activePage : visibleMenuItems[0]?.key;
+  const currentTitle = visibleMenuItems.find((item) => item.key === effectiveActivePage)?.title || visibleMenuItems[0]?.title;
 
   return (
     <div className="app-shell">
@@ -50,10 +56,10 @@ export default function App() {
         </div>
 
         <nav className="nav-list">
-          {menuItems.map((item) => (
+          {visibleMenuItems.map((item) => (
             <button
               key={item.key}
-              className={activePage === item.key ? "nav-item active" : "nav-item"}
+              className={effectiveActivePage === item.key ? "nav-item active" : "nav-item"}
               onClick={() => setActivePage(item.key)}
             >
               {item.label}
@@ -76,12 +82,13 @@ export default function App() {
           </div>
         </header>
 
-        {activePage === "dashboard" && <DashboardPage />}
-        {activePage === "rooms" && <RoomsPage />}
-        {activePage === "tenants" && <TenantsPage />}
-        {activePage === "invoices" && <InvoicesPage />}
-        {activePage === "payments" && <PaymentsPage />}
-        {activePage === "reports" && <ReportsPage />}
+        {effectiveActivePage === "dashboard" && <DashboardPage />}
+        {effectiveActivePage === "rooms" && <RoomsPage />}
+        {effectiveActivePage === "tenants" && <TenantsPage />}
+        {effectiveActivePage === "users" && <UsersPage />}
+        {effectiveActivePage === "invoices" && <InvoicesPage user={user} />}
+        {effectiveActivePage === "payments" && <PaymentsPage />}
+        {effectiveActivePage === "reports" && <ReportsPage />}
       </main>
     </div>
   );

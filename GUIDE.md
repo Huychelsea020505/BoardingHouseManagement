@@ -52,6 +52,12 @@ Demo accounts:
 
 - `admin / 123456`
 - `staff / 123456`
+- `tenant / 123456`
+
+Role behavior:
+
+- `ADMIN`: can manage rooms, tenants, users, invoices, payments, and reports.
+- `TENANT`: can only view/search personal invoices linked to `tenantId = 1`.
 
 The C# service uses Java APIs when the Java services are running. If they are not running, it falls back to demo data so the microservice can still be tested.
 
@@ -93,10 +99,13 @@ Frontend proxy routes:
 ## 5. Final project feature checklist
 
 - Login through C# SSO API
+- Role-based user management through C# User API
+- Admin/Tenant authorization in frontend navigation
 - Room CRUD through Java room-service
 - Tenant CRUD through Java room-service
 - Invoice/payment through Java billing-service
 - Room/tenant/invoice search through C# Search API
+- Object information details for rooms, tenants, users, and invoices
 - Statistical report page through C# Report API
 - Design patterns in code:
   - Facade: `AuthFacade`, `SearchFacade`, `ReportFacade`
