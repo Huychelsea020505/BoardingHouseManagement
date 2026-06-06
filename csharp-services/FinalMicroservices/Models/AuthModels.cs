@@ -18,5 +18,6 @@ public sealed class AppUserDto
     public string FullName { get; set; } = "";
     public string Role { get; set; } = "TENANT";
     public long? TenantId { get; set; }
+    public string TenantName { get; set; } = "";
     public bool Enabled { get; set; } = true;
 }

@@ -2,21 +2,29 @@ import { useState } from "react";
 import { api } from "../api";
 
 export default function LoginPage({ onLogin }) {
-  const [form, setForm] = useState({ username: "admin", password: "123456" });
+  const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
 
   async function login(event) {
     event.preventDefault();
     setError("");
 
+    if (!form.username.trim() || !form.password.trim()) {
+      setError("Please enter your username and password.");
+      return;
+    }
+
     try {
       const data = await api("/api/sso/login", {
         method: "POST",
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          username: form.username.trim(),
+          password: form.password,
+        }),
       });
       onLogin(data);
     } catch (err) {
-      setError("Tên đăng nhập hoặc mật khẩu không đúng.");
+      setError("The username or password is incorrect.");
     }
   }
 
@@ -25,22 +33,33 @@ export default function LoginPage({ onLogin }) {
       <section className="login-card">
         <div className="login-intro">
           <span className="kicker">Motel Management System</span>
-          <h1>Quản lý nhà trọ</h1>
-          <p>Theo dõi phòng, người thuê, hóa đơn và thanh toán trong một giao diện rõ ràng.</p>
+          <h1>Boarding House Management</h1>
+          <p>Track rooms, tenants, invoices, and payments in one clear workspace.</p>
         </div>
 
         <form className="login-form" onSubmit={login}>
-          <h2>Đăng nhập</h2>
+          <h2>Login</h2>
           {error && <div className="alert error">{error}</div>}
           <label>
-            Tên đăng nhập
-            <input value={form.username} onChange={(event) => setForm({ ...form, username: event.target.value })} />
+            Username
+            <input
+              value={form.username}
+              onChange={(event) => setForm({ ...form, username: event.target.value })}
+              required
+              autoComplete="username"
+            />
           </label>
           <label>
-            Mật khẩu
-            <input type="password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} />
+            Password
+            <input
+              type="password"
+              value={form.password}
+              onChange={(event) => setForm({ ...form, password: event.target.value })}
+              required
+              autoComplete="current-password"
+            />
           </label>
-          <button className="primary-button">Đăng nhập</button>
+          <button className="primary-button">Login</button>
         </form>
       </section>
     </main>

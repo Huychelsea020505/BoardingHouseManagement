@@ -3,6 +3,12 @@ import { api, money, queryString, toNumberPayload } from "../api";
 
 const emptyForm = { name: "", price: "", area: "", waterPrice: "", status: "AVAILABLE" };
 
+const statusLabel = {
+  AVAILABLE: "Available",
+  OCCUPIED: "Occupied",
+  MAINTENANCE: "Maintenance",
+};
+
 export default function RoomsPage() {
   const [rooms, setRooms] = useState([]);
   const [form, setForm] = useState(emptyForm);
@@ -22,7 +28,7 @@ export default function RoomsPage() {
     try {
       setRooms(await api(`/api/search/rooms${queryString({ keyword, status: statusFilter })}`));
     } catch (err) {
-      setError("Không thể tải danh sách phòng.");
+      setError("Unable to load rooms.");
     }
   }
 
@@ -47,81 +53,86 @@ export default function RoomsPage() {
       const payload = toNumberPayload(form, ["price", "area", "waterPrice"]);
       if (editingId) {
         await api(`/rooms/${editingId}`, { method: "PUT", body: JSON.stringify(payload) });
-        setMessage("Đã cập nhật phòng.");
+        setMessage("Room updated.");
       } else {
         await api("/rooms", { method: "POST", body: JSON.stringify(payload) });
-        setMessage("Đã thêm phòng mới.");
+        setMessage("Room created.");
       }
       setForm(emptyForm);
       setEditingId(null);
       loadRooms();
     } catch (err) {
-      setError("Không thể lưu phòng. Tên phòng có thể đã tồn tại.");
+      setError("Unable to save room. The room name may already exist.");
     }
   }
 
   async function deleteRoom(id) {
-    if (!confirm("Bạn có chắc muốn xóa phòng này?")) return;
+    if (!confirm("Are you sure you want to delete this room?")) return;
     try {
       await api(`/rooms/${id}`, { method: "DELETE" });
-      setMessage("Đã xóa phòng.");
+      setMessage("Room deleted.");
       loadRooms();
     } catch (err) {
-      setError("Không thể xóa phòng đang có người thuê.");
+      setError("Unable to delete a room that has tenants.");
     }
+  }
+
+  function resetForm() {
+    setForm(emptyForm);
+    setEditingId(null);
   }
 
   return (
     <div className="content-grid">
       <section className="panel form-panel">
-        <div className="panel-heading"><h2>{editingId ? "Sửa phòng" : "Thêm phòng"}</h2></div>
+        <div className="panel-heading"><h2>{editingId ? "Edit room" : "Add room"}</h2></div>
         {error && <div className="alert error">{error}</div>}
         {message && <div className="alert success">{message}</div>}
         <form className="data-form" onSubmit={saveRoom}>
-          <label>Tên phòng<input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} required /></label>
-          <label>Giá phòng<input type="number" value={form.price} onChange={(event) => setForm({ ...form, price: event.target.value })} required /></label>
-          <label>Diện tích<input type="number" value={form.area} onChange={(event) => setForm({ ...form, area: event.target.value })} required /></label>
-          <label>Giá nước<input type="number" value={form.waterPrice} onChange={(event) => setForm({ ...form, waterPrice: event.target.value })} required /></label>
+          <label>Room name<input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} required /></label>
+          <label>Room price<input type="number" value={form.price} onChange={(event) => setForm({ ...form, price: event.target.value })} required /></label>
+          <label>Area<input type="number" value={form.area} onChange={(event) => setForm({ ...form, area: event.target.value })} required /></label>
+          <label>Water price<input type="number" value={form.waterPrice} onChange={(event) => setForm({ ...form, waterPrice: event.target.value })} required /></label>
           <label>
-            Trạng thái
+            Status
             <select value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value })}>
-              <option>AVAILABLE</option>
-              <option>OCCUPIED</option>
-              <option>MAINTENANCE</option>
+              <option value="AVAILABLE">Available</option>
+              <option value="OCCUPIED">Occupied</option>
+              <option value="MAINTENANCE">Maintenance</option>
             </select>
           </label>
           <div className="form-actions">
-            <button className="primary-button">{editingId ? "Cập nhật" : "Thêm phòng"}</button>
-            <button type="button" className="ghost-button" onClick={() => { setForm(emptyForm); setEditingId(null); }}>Hủy</button>
+            <button className="primary-button">{editingId ? "Update" : "Add room"}</button>
+            <button type="button" className="ghost-button" onClick={resetForm}>Cancel</button>
           </div>
         </form>
         {selectedRoom && (
           <div className="detail-box">
-            <h3>Object Information</h3>
+            <h3>Room details</h3>
             <p><strong>Room:</strong> {selectedRoom.name}</p>
             <p><strong>Area:</strong> {selectedRoom.area} m2</p>
-            <p><strong>Price:</strong> {money(selectedRoom.price)}</p>
-            <p><strong>Water:</strong> {money(selectedRoom.waterPrice)}</p>
-            <p><strong>Status:</strong> {selectedRoom.status}</p>
+            <p><strong>Room price:</strong> {money(selectedRoom.price)}</p>
+            <p><strong>Water price:</strong> {money(selectedRoom.waterPrice)}</p>
+            <p><strong>Status:</strong> {statusLabel[selectedRoom.status] || selectedRoom.status}</p>
           </div>
         )}
       </section>
 
       <section className="panel">
-        <div className="panel-heading"><h2>Danh sách phòng</h2><button className="ghost-button" onClick={loadRooms}>Tải lại</button></div>
+        <div className="panel-heading"><h2>Room list</h2><button className="ghost-button" onClick={loadRooms}>Refresh</button></div>
         <div className="toolbar">
-          <input placeholder="Tìm phòng" value={keyword} onChange={(event) => setKeyword(event.target.value)} />
+          <input placeholder="Search rooms" value={keyword} onChange={(event) => setKeyword(event.target.value)} />
           <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
-            <option value="ALL">Tất cả trạng thái</option>
-            <option value="AVAILABLE">AVAILABLE</option>
-            <option value="OCCUPIED">OCCUPIED</option>
-            <option value="MAINTENANCE">MAINTENANCE</option>
+            <option value="ALL">All statuses</option>
+            <option value="AVAILABLE">Available</option>
+            <option value="OCCUPIED">Occupied</option>
+            <option value="MAINTENANCE">Maintenance</option>
           </select>
-          <button className="primary-button" onClick={loadRooms}>Tìm kiếm</button>
+          <button className="primary-button" onClick={loadRooms}>Search</button>
         </div>
         <div className="table-wrap">
           <table>
-            <thead><tr><th>Tên phòng</th><th>Diện tích</th><th>Giá phòng</th><th>Giá nước</th><th>Trạng thái</th><th>Hành động</th></tr></thead>
+            <thead><tr><th>Room name</th><th>Area</th><th>Room price</th><th>Water price</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody>
               {rooms.map((room) => (
                 <tr key={room.id}>
@@ -129,11 +140,11 @@ export default function RoomsPage() {
                   <td>{room.area} m2</td>
                   <td>{money(room.price)}</td>
                   <td>{money(room.waterPrice)}</td>
-                  <td><span className={`badge ${room.status?.toLowerCase()}`}>{room.status}</span></td>
+                  <td><span className={`badge ${room.status?.toLowerCase()}`}>{statusLabel[room.status] || room.status}</span></td>
                   <td className="actions">
-                    <button className="small-button" onClick={() => setSelectedRoom(room)}>Chi tiết</button>
-                    <button className="small-button" onClick={() => editRoom(room)}>Sửa</button>
-                    <button className="small-button danger" onClick={() => deleteRoom(room.id)}>Xóa</button>
+                    <button className="small-button" onClick={() => setSelectedRoom(room)}>Details</button>
+                    <button className="small-button" onClick={() => editRoom(room)}>Edit</button>
+                    <button className="small-button danger" onClick={() => deleteRoom(room.id)}>Delete</button>
                   </td>
                 </tr>
               ))}

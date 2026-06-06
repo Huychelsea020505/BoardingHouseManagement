@@ -11,6 +11,11 @@ const emptyForm = {
   servicePrice: "",
 };
 
+const statusLabel = {
+  UNPAID: "Unpaid",
+  PAID: "Paid",
+};
+
 export default function InvoicesPage({ user }) {
   const [invoices, setInvoices] = useState([]);
   const [rooms, setRooms] = useState([]);
@@ -46,7 +51,7 @@ export default function InvoicesPage({ user }) {
         setTenants(tenantData);
       }
     } catch (err) {
-      setError("Khong the tai du lieu hoa don.");
+      setError("Unable to load invoices.");
     }
   }
 
@@ -70,10 +75,10 @@ export default function InvoicesPage({ user }) {
         ),
       });
       setForm(emptyForm);
-      setMessage("Da tao hoa don.");
+      setMessage("Invoice created.");
       loadData();
     } catch (err) {
-      setError("Khong the tao hoa don. Phong va nguoi thue phai khop nhau.");
+      setError("Unable to create invoice. The room and tenant must match.");
     }
   }
 
@@ -87,10 +92,10 @@ export default function InvoicesPage({ user }) {
         body: JSON.stringify({ amount: Number(payForm.amount), note: payForm.note }),
       });
       setPayForm({ invoice: null, amount: "", note: "" });
-      setMessage("Da thanh toan hoa don.");
+      setMessage("Invoice paid.");
       loadData();
     } catch (err) {
-      setError("Khong the thanh toan hoa don.");
+      setError("Unable to pay invoice.");
     }
   }
 
@@ -103,41 +108,41 @@ export default function InvoicesPage({ user }) {
     <div className={isTenant ? "page-stack" : "content-grid"}>
       {!isTenant && (
         <section className="panel form-panel">
-          <div className="panel-heading"><h2>Tao hoa don</h2></div>
+          <div className="panel-heading"><h2>Create invoice</h2></div>
           {error && <div className="alert error">{error}</div>}
           {message && <div className="alert success">{message}</div>}
 
           <form className="data-form" onSubmit={saveInvoice}>
             <label>
-              Phong
+              Room
               <select value={form.roomId} onChange={(event) => setForm({ ...form, roomId: event.target.value })} required>
-                <option value="">Chon phong</option>
+                <option value="">Select a room</option>
                 {rooms.map((room) => <option key={room.id} value={room.id}>{room.name}</option>)}
               </select>
             </label>
             <label>
-              Nguoi thue
+              Tenant
               <select value={form.tenantId} onChange={(event) => setForm({ ...form, tenantId: event.target.value })} required>
-                <option value="">Chon nguoi thue</option>
+                <option value="">Select a tenant</option>
                 {tenants.map((tenant) => <option key={tenant.id} value={tenant.id}>{tenant.fullName} - {tenant.room?.name}</option>)}
               </select>
             </label>
-            <label>Thang<input placeholder="05/2026" value={form.month} onChange={(event) => setForm({ ...form, month: event.target.value })} required /></label>
-            <label>Tien phong<input type="number" value={form.roomPrice} onChange={(event) => setForm({ ...form, roomPrice: event.target.value })} required /></label>
-            <label>Tien nuoc<input type="number" value={form.waterPrice} onChange={(event) => setForm({ ...form, waterPrice: event.target.value })} required /></label>
-            <label>Tien dien<input type="number" value={form.electricityPrice} onChange={(event) => setForm({ ...form, electricityPrice: event.target.value })} required /></label>
-            <label>Phi dich vu<input type="number" value={form.servicePrice} onChange={(event) => setForm({ ...form, servicePrice: event.target.value })} required /></label>
-            <button className="primary-button">Tao hoa don</button>
+            <label>Month<input placeholder="05/2026" value={form.month} onChange={(event) => setForm({ ...form, month: event.target.value })} required /></label>
+            <label>Room charge<input type="number" value={form.roomPrice} onChange={(event) => setForm({ ...form, roomPrice: event.target.value })} required /></label>
+            <label>Water charge<input type="number" value={form.waterPrice} onChange={(event) => setForm({ ...form, waterPrice: event.target.value })} required /></label>
+            <label>Electricity charge<input type="number" value={form.electricityPrice} onChange={(event) => setForm({ ...form, electricityPrice: event.target.value })} required /></label>
+            <label>Service charge<input type="number" value={form.servicePrice} onChange={(event) => setForm({ ...form, servicePrice: event.target.value })} required /></label>
+            <button className="primary-button">Create invoice</button>
           </form>
 
           {payForm.invoice && (
             <form className="pay-box" onSubmit={payInvoice}>
-              <h3>Thanh toan {payForm.invoice.month}</h3>
-              <label>So tien<input type="number" value={payForm.amount} onChange={(event) => setPayForm({ ...payForm, amount: event.target.value })} required /></label>
-              <label>Ghi chu<input value={payForm.note} onChange={(event) => setPayForm({ ...payForm, note: event.target.value })} /></label>
+              <h3>Pay {payForm.invoice.month}</h3>
+              <label>Amount<input type="number" value={payForm.amount} onChange={(event) => setPayForm({ ...payForm, amount: event.target.value })} required /></label>
+              <label>Note<input value={payForm.note} onChange={(event) => setPayForm({ ...payForm, note: event.target.value })} /></label>
               <div className="form-actions">
-                <button className="primary-button">Xac nhan</button>
-                <button type="button" className="ghost-button" onClick={() => setPayForm({ invoice: null, amount: "", note: "" })}>Huy</button>
+                <button className="primary-button">Confirm</button>
+                <button type="button" className="ghost-button" onClick={() => setPayForm({ invoice: null, amount: "", note: "" })}>Cancel</button>
               </div>
             </form>
           )}
@@ -148,20 +153,20 @@ export default function InvoicesPage({ user }) {
         {isTenant && error && <div className="alert error">{error}</div>}
         {isTenant && message && <div className="alert success">{message}</div>}
         <div className="panel-heading">
-          <h2>{isTenant ? "Hoa don cua toi" : "Danh sach hoa don"}</h2>
+          <h2>{isTenant ? "My invoices" : "Invoice list"}</h2>
           <select className="compact-select" value={filter} onChange={(event) => setFilter(event.target.value)}>
-            <option value="ALL">Tat ca</option>
-            <option value="UNPAID">Chua thanh toan</option>
-            <option value="PAID">Da thanh toan</option>
+            <option value="ALL">All</option>
+            <option value="UNPAID">Unpaid</option>
+            <option value="PAID">Paid</option>
           </select>
         </div>
         <div className="toolbar">
-          <input placeholder="Tim theo thang, phong, nguoi thue" value={keyword} onChange={(event) => setKeyword(event.target.value)} />
-          <button className="primary-button" onClick={loadData}>Tim kiem</button>
+          <input placeholder="Search by month, room, or tenant" value={keyword} onChange={(event) => setKeyword(event.target.value)} />
+          <button className="primary-button" onClick={loadData}>Search</button>
         </div>
         <div className="table-wrap">
           <table>
-            <thead><tr><th>Thang</th><th>Phong</th><th>Nguoi thue</th><th>Tong</th><th>Trang thai</th><th>Hanh dong</th></tr></thead>
+            <thead><tr><th>Month</th><th>Room</th><th>Tenant</th><th>Total amount</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody>
               {visibleInvoices.map((invoice) => (
                 <tr key={invoice.id}>
@@ -169,11 +174,11 @@ export default function InvoicesPage({ user }) {
                   <td>{invoice.roomName || invoice.room?.name}</td>
                   <td>{invoice.tenantName || invoice.tenant?.fullName}</td>
                   <td>{money(invoice.totalAmount)}</td>
-                  <td><span className={`badge ${invoice.status?.toLowerCase()}`}>{invoice.status}</span></td>
+                  <td><span className={`badge ${invoice.status?.toLowerCase()}`}>{statusLabel[invoice.status] || invoice.status}</span></td>
                   <td className="actions">
-                    <button className="small-button" onClick={() => setSelectedInvoice(invoice)}>Chi tiet</button>
+                    <button className="small-button" onClick={() => setSelectedInvoice(invoice)}>Details</button>
                     {!isTenant && invoice.status === "UNPAID" && (
-                      <button className="small-button" onClick={() => setPayForm({ invoice, amount: invoice.totalAmount, note: "" })}>Thanh toan</button>
+                      <button className="small-button" onClick={() => setPayForm({ invoice, amount: invoice.totalAmount, note: "" })}>Pay</button>
                     )}
                   </td>
                 </tr>
@@ -184,12 +189,12 @@ export default function InvoicesPage({ user }) {
 
         {selectedInvoice && (
           <div className="detail-box wide">
-            <h3>Object Information</h3>
+            <h3>Invoice details</h3>
             <p><strong>Month:</strong> {selectedInvoice.month}</p>
             <p><strong>Room:</strong> {selectedInvoice.roomName || selectedInvoice.room?.name}</p>
             <p><strong>Tenant:</strong> {selectedInvoice.tenantName || selectedInvoice.tenant?.fullName}</p>
-            <p><strong>Total:</strong> {money(selectedInvoice.totalAmount)}</p>
-            <p><strong>Status:</strong> {selectedInvoice.status}</p>
+            <p><strong>Total amount:</strong> {money(selectedInvoice.totalAmount)}</p>
+            <p><strong>Status:</strong> {statusLabel[selectedInvoice.status] || selectedInvoice.status}</p>
           </div>
         )}
       </section>

@@ -27,6 +27,7 @@ public sealed class UserFacade
 
         request.Enabled = true;
         request.Role = NormalizeRole(request.Role);
+        ValidateTenant(request.Role, request.TenantId);
         return SafeUser(_demoDataStore.AddUser(request));
     }
 
@@ -35,6 +36,7 @@ public sealed class UserFacade
         var user = FindUser(id);
         user.FullName = request.FullName;
         user.Role = NormalizeRole(request.Role);
+        ValidateTenant(user.Role, request.TenantId);
         user.TenantId = user.Role == "TENANT" ? request.TenantId : null;
         if (!string.IsNullOrWhiteSpace(request.Password))
         {
@@ -57,7 +59,20 @@ public sealed class UserFacade
     private static string NormalizeRole(string? role) =>
         role?.Equals("ADMIN", StringComparison.OrdinalIgnoreCase) == true ? "ADMIN" : "TENANT";
 
-    private static AppUserDto SafeUser(AppUserDto user) => new()
+    private void ValidateTenant(string role, long? tenantId)
+    {
+        if (role != "TENANT")
+        {
+            return;
+        }
+
+        if (tenantId is null || !_demoDataStore.Tenants.Any(tenant => tenant.Id == tenantId))
+        {
+            throw new InvalidOperationException("Tenant is required");
+        }
+    }
+
+    private AppUserDto SafeUser(AppUserDto user) => new()
     {
         Id = user.Id,
         Username = user.Username,
@@ -65,6 +80,9 @@ public sealed class UserFacade
         FullName = user.FullName,
         Role = user.Role,
         TenantId = user.TenantId,
+        TenantName = user.TenantId is null
+            ? ""
+            : _demoDataStore.Tenants.FirstOrDefault(tenant => tenant.Id == user.TenantId)?.FullName ?? "",
         Enabled = user.Enabled
     };
 }

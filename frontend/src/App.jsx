@@ -9,29 +9,25 @@ import ReportsPage from "./pages/ReportsPage.jsx";
 import UsersPage from "./pages/UsersPage.jsx";
 
 const menuItems = [
-  { key: "dashboard", label: "Dashboard", title: "Tong quan", roles: ["ADMIN"] },
-  { key: "rooms", label: "Rooms", title: "Quan ly phong tro", roles: ["ADMIN"] },
-  { key: "tenants", label: "Tenants", title: "Quan ly nguoi thue", roles: ["ADMIN"] },
-  { key: "users", label: "Users", title: "Quan ly tai khoan", roles: ["ADMIN"] },
-  { key: "invoices", label: "Invoices", title: "Hoa don", roles: ["ADMIN", "TENANT"] },
-  { key: "payments", label: "Payments", title: "Lich su thanh toan", roles: ["ADMIN"] },
-  { key: "reports", label: "Reports", title: "Bao cao thong ke", roles: ["ADMIN"] },
+  { key: "dashboard", label: "Dashboard", title: "Dashboard", roles: ["ADMIN"] },
+  { key: "rooms", label: "Rooms", title: "Room Management", roles: ["ADMIN"] },
+  { key: "tenants", label: "Tenants", title: "Tenant Management", roles: ["ADMIN"] },
+  { key: "users", label: "Users", title: "User Management", roles: ["ADMIN"] },
+  { key: "invoices", label: "Invoices", title: "Invoices", roles: ["ADMIN", "TENANT"] },
+  { key: "payments", label: "Payments", title: "Payment History", roles: ["ADMIN"] },
+  { key: "reports", label: "Reports", title: "Reports", roles: ["ADMIN"] },
 ];
 
 export default function App() {
-  const storedUser = localStorage.getItem("motel_user");
-  const storedUserData = storedUser ? JSON.parse(storedUser) : null;
-  const [user, setUser] = useState(storedUserData);
-  const [activePage, setActivePage] = useState(storedUserData?.role === "TENANT" ? "invoices" : "dashboard");
+  const [user, setUser] = useState(null);
+  const [activePage, setActivePage] = useState("dashboard");
 
   function handleLogin(data) {
-    localStorage.setItem("motel_user", JSON.stringify(data));
     setUser(data);
     setActivePage(data.role === "TENANT" ? "invoices" : "dashboard");
   }
 
   function handleLogout() {
-    localStorage.removeItem("motel_user");
     setUser(null);
     setActivePage("dashboard");
   }
@@ -51,7 +47,7 @@ export default function App() {
           <div className="brand-mark">M</div>
           <div>
             <strong>3H Motel Manager</strong>
-            <span>Boarding house</span>
+            <span>Boarding house management</span>
           </div>
         </div>
 
